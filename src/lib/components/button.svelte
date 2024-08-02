@@ -6,7 +6,7 @@
 	let classes = [defaultClass, variant, $$props.class].join(' ').trim();
 </script>
 
-<button class={classes} on:click>
+<button {type} class={classes} on:click>
 	<slot />
 </button>
 

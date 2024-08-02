@@ -14,6 +14,7 @@ export const actions: Actions = {
 		}
 
 		const user = {
+			id: crypto.randomUUID(),
 			name: name,
 			image: `https://ui-avatars.com/api/?name=${name.replaceAll(' ', '+')}`
 		};

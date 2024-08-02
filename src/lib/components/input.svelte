@@ -22,6 +22,7 @@
 		border: 1px solid rgba(var(--dark), 0.5);
 		border-radius: 0.375rem;
 		padding: 0.625rem;
+		width: 100%;
 	}
 
 	input.invalid {
