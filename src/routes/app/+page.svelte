@@ -163,6 +163,10 @@
 			insertedAt: '2024-08-02 16:11:00'
 		}
 	];
+
+	const sendMessage = (text: string) => {
+		alert('Your message was sent');
+	};
 </script>
 
 <div class="container">
@@ -181,7 +185,7 @@
 		</div>
 
 		<div class="input-container">
-			<MessageInput />
+			<MessageInput {sendMessage} />
 		</div>
 	</div>
 </div>

@@ -1,12 +1,13 @@
 <script lang="ts">
 	export let variant: Variant = 'primary';
 	export let type: 'button' | 'submit' = 'button';
+	export let disabled = false;
 
 	let defaultClass = 'btn';
 	let classes = [defaultClass, variant, $$props.class].join(' ').trim();
 </script>
 
-<button {type} class={classes} on:click>
+<button {type} class={classes} {disabled} on:click>
 	<slot />
 </button>
 
@@ -27,5 +28,10 @@
 
 	.btn.primary:hover {
 		background: rgb(var(--dark));
+	}
+
+	.btn:disabled {
+		opacity: 0.35;
+		cursor: not-allowed;
 	}
 </style>
