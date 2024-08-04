@@ -1,104 +1,152 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { enhance } from '$app/forms';
 
-    import { enhance } from '$app/forms';
+	/**
+	 * Load historic chat data
+	 *
+	 * This prepares for a future version where historic message data
+	 * will be fetched from the server on page load.
+	 */
+	let { data } = $props();
 
-    let { data } = $props();
+	/**
+	 * Auto-scroll chat window on new messages
+	 *
+	 * This functionality ensures that the chat window automatically scrolls
+	 * to the bottom when a new message is added, improving user experience.
+	 */
+	let chatHistory: HTMLElement | null;
 
-    const scrollToBottom = async (node: HTMLElement) => {
-        node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
-    };
+	onMount(() => {
+		// Attempt to get a reference to the chat history element
+		chatHistory = document.getElementById('chat-history');
+		if (!chatHistory) {
+			console.error('chat-history section not found');
+		}
+	});
 
-    $effect(() => {
+	$effect(() => {
+		// Scroll to bottom when data changes and chat history exists
         data;
-        const scrollableElement = document.getElementById('chat-history-wrapper');
-        if (scrollableElement) {
-            scrollToBottom(scrollableElement);
-        };
-    });
-
+		if (chatHistory) {
+			chatHistory.scroll({ top: chatHistory.scrollHeight, behavior: 'instant' });
+		} else {
+			console.error('chatHistory section not found');
+		}
+	});
 </script>
-   
-<div id="chat-container">
-    
-    <h1 id="chat-title">Minimal Chat App</h1>
-    
-    <div id="chat-history-wrapper">
-        
-        <!-- Iterate over message history and display each message -->
-        <!-- ? An alternative here might be to have a simple message Component and import it -->
-        {#each data.messageHistory as { username, message }}
-            <div id="username">{username}:</div>
-            <div id="message">{message}</div>
-        {/each}
-        
-    </div>
 
-    <div id="chat-input-wrapper">
+<main id="chat-app">
+	<h1>Chat App</h1>
 
-        <form
-            id="chat-input-form"
-            method="POST"
-            action="?/submitMessage"
-            use:enhance
-        >
+	<!-- This section shows the history of the messages input by the user -->
+	<section id="chat-history" class="hide-scrollbar">
+		<!-- TODO: Consider creating a separate Message Component for better modularity -->
+		{#each data.messageHistory as { username, message }}
+			<!-- Render each message in the chat history -->
+			<article class="chat-message">
+				<p><span class="username">{username}:</span> {message}</p>
+			</article>
+		{/each}
+	</section>
 
-            <!-- Hidden input for hardcoded username>
-            <!-- TODO: Replace once user management strategy and tooling has been determined-->
-            <input type="hidden" name="username" value="Me"/>
-            
-            <!-- Message input field -->
-             <!-- svelte-ignore a11y_autofocus -->
-            <input name="message" type="text" placeholder="Type your message..." autocomplete="off" autofocus required />
+	<!-- This form submits the hardcoded username and user input message to the server. It uses autofocus to ensure the cursor stays in the input box after submission-->
+	<form id="chat-input" method="POST" action="?/submitMessage" use:enhance>
+		<input type="hidden" name="username" value="Me" />
+		<div class="input-wrapper">
+			<label for="message-input" class="sr-only">Type your message</label>
+			<!-- svelte-ignore a11y_autofocus -->
+			<input
+				id="message-input"
+				name="message"
+				type="text"
+				placeholder="Type your message..."
+				autocomplete="off"
+				autofocus
+				required
+			/>
+			<button type="submit" class="send-button">
+				<span class="sr-only">Send</span>
+				<svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24">
+					<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+				</svg>
+			</button>
+		</div>
+	</form>
+</main>
 
-        </form>
-    </div>
-    
-
-</div>
-
-<!-- Bare minimum css included for usability -->
-<!-- ? Do we want to use vanilla css in style or move to something like Tailwind? -->
 <style>
+	h1 {
+		margin-top: 1rem;
+	}
+	#chat-app {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		height: 100%;
+		max-height: 100%;
+		padding: 0rem 4rem 4rem 4rem;
+	}
+	#chat-history {
+		flex-grow: 1;
+		overflow-y: auto;
+		padding: 2rem;
+		background: white;
+		border-radius: 1rem;
+		border: 2px solid rgb(200, 200, 200);
+	}
 
-    #chat-container {
-        max-width: 800px;
-        margin: auto;
-    }
+	.hide-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
 
-    #chat-title {
-        padding: 15px;
-        text-align: center;
-    }
+	.hide-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
 
-    #chat-history-wrapper {
-        border: solid 2px rgb(171, 182, 192);
-        padding: 20px;
-        margin-bottom: 5px;
-        min-height: 600px;
-        max-height: 600px;
-        overflow: scroll;
-    }
+	#chat-input {
+		background-color: var(--color-bg);
+		border-top: 1px solid #ddd;
+	}
 
-    #chat-history-wrapper div:nth-child(odd) {
-        font-weight: bold;
-    }
+	.input-wrapper {
+		position: relative;
+		display: inline-block;
+		width: 100%;
+	}
 
-    #chat-history-wrapper div:nth-child(even) {
-        width: 100%;
-        margin: auto;
-        padding-bottom: 15px
-    }
+	#message-input {
+		width: 100%;
+		padding-right: 40px;
+		padding: 0.5rem;
+		box-sizing: border-box;
+		border-radius: 0.5rem;
+		border: 2px solid rgb(200, 200, 200);
+	}
 
-    #chat-input-form input[name="message"] {
-        width:100%;
-        box-sizing: border-box;
-        padding: 10px;
-        border: solid 2px rgb(171, 182, 192);
-        font-size: 16px;
-    }
+	.send-button {
+		position: absolute;
+		right: 5px;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 5px;
+	}
 
-    #chat-input-form input[name="message"]:focus {
-        outline: gray solid 2px;
-    }
+	.send-button svg {
+		fill: #007bff;
+	}
 
+	.send-button:hover svg {
+		fill: #0056b3;
+	}
+
+	.username {
+		font-weight: bold;
+	}
 </style>
