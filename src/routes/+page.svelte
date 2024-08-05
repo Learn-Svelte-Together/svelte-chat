@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 
 	/**
@@ -16,23 +15,14 @@
 	 * This functionality ensures that the chat window automatically scrolls
 	 * to the bottom when a new message is added, improving user experience.
 	 */
-	let chatHistory: HTMLElement | null;
-
-	onMount(() => {
-		// Attempt to get a reference to the chat history element
-		chatHistory = document.getElementById('chat-history');
-		if (!chatHistory) {
-			console.error('chat-history section not found');
-		}
-	});
-
+	let chatHistory: HTMLElement | null; // I use bind:this on the element to assign.
 	$effect(() => {
 		// Scroll to bottom when data changes and chat history exists
-        data;
+        data; // effect will only run if data changes
 		if (chatHistory) {
 			chatHistory.scroll({ top: chatHistory.scrollHeight, behavior: 'instant' });
 		} else {
-			console.error('chatHistory section not found');
+			console.error('chatHistory section not found'); // just in case something goes wrong :)
 		}
 	});
 </script>
@@ -41,7 +31,7 @@
 	<h1>Chat App</h1>
 
 	<!-- This section shows the history of the messages input by the user -->
-	<section id="chat-history" class="hide-scrollbar">
+	<section id="chat-history" class="hide-scrollbar" bind:this={chatHistory}>
 		<!-- TODO: Consider creating a separate Message Component for better modularity -->
 		{#each data.messageHistory as { username, message }}
 			<!-- Render each message in the chat history -->
@@ -51,9 +41,9 @@
 		{/each}
 	</section>
 
-	<!-- This form submits the hardcoded username and user input message to the server. It uses autofocus to ensure the cursor stays in the input box after submission-->
+	<!-- This form submits the hardcoded username and user input message to the server. It uses autofocus to ensure the cursor stays in the input box after submission. It makes use of svelte enhance (imported above)-->
 	<form id="chat-input" method="POST" action="?/submitMessage" use:enhance>
-		<input type="hidden" name="username" value="Me" />
+		<input type="hidden" name="username" value="Me" /> 
 		<div class="input-wrapper">
 			<label for="message-input" class="sr-only">Type your message</label>
 			<!-- svelte-ignore a11y_autofocus -->
@@ -98,10 +88,12 @@
 		border: 2px solid rgb(200, 200, 200);
 	}
 
+	/*
+	* Personal preference to hide scrollbars as I think they're ugly :) 
+	*/
 	.hide-scrollbar::-webkit-scrollbar {
 		display: none;
 	}
-
 	.hide-scrollbar {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
