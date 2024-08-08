@@ -1,20 +1,46 @@
 import { fail } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
 
-// A placeholder for the conversation database
-// TODO: Remove when DB and user management implemented
+/** 
+* This is a placeholder array which is used in place of a DB, until we have one. It stores the message history.
+* 
+* TODO: Remove when DB and user management implemented.
+*/
 const messageHistory: ChatHistoryItem[] = [];
 
 /**
- * Load function to provide initial data to the page when it loads.
- * TODO: Update when DB and user management implemented.
- * @returns {Object} - An object containing the message history.
+ * Server-side load function for fetching the chat message history.
+ * 
+ * This function is executed on the server each time the page is requested.
+ * It returns the `messageHistory` array, which is a placeholder for
+ * chat messages. This placeholder will be replaced with actual database
+ * logic once the database and user management are implemented.
+ * 
+ * TODO: Update when we have a DB.
  */
-export function load(): { messageHistory: ChatHistoryItem[] } {
-    return {
-        messageHistory
-    };
-}
+export const load: PageServerLoad = () => {
+	return {
+		messageHistory,
+	};
+};
 
+/**
+ * An action for handling new messages from the user.
+ * 
+ * The `submitMessage` action handles the submission of a new message by a user. It 
+ * extracts and validates the necessary form data (username and message), and 
+ * processes the message to be added to the message history. If the submission is 
+ * successful, a success response is returned along with the updated message history.
+ * 
+ * In case of an error during submission (e.g., missing form fields or other issues), 
+ * it catches the error, logs it, and returns a failure response with the relevant 
+ * error message and the original form data for the user's convenience.
+ * 
+ * Note: The current implementation uses an in-memory message history and lacks 
+ * database and user management integration, which should be added in future updates.
+ * 
+ * TODO: Update when we have a DB.
+ */
 export const actions = {
     
     // Action to handle new message submission from user.
@@ -34,7 +60,7 @@ export const actions = {
                 throw new Error('Invalid input. Did not receive username and/or message.');
             }
 
-            // Add the new message to the message history
+            // Add the new message to the message history.
             // TODO: Replace when DB and user management implemented.
             messageHistory.push({ username, message });
 
@@ -62,4 +88,4 @@ export const actions = {
             });
         }
     }
-};
+} satisfies Actions;
