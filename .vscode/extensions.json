@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "pkief.material-icon-theme",
-        "svelte.svelte-vscode"
+        "svelte.svelte-vscode",
+        "aaron-bond.better-comments"
     ]
 }

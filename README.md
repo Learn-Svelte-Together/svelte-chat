@@ -8,7 +8,7 @@ Our goal is to build an app collaboratively, implementing a new feature each wee
 
 ## Getting Started
 
-1. Become a member of our [Discort community](https://discord.gg/6J3f7NkETs) and participate on the weekly meetings.
+1. Become a member of our [Discord community](https://discord.gg/6J3f7NkETs) and participate on the weekly meetings.
 2. Send me your email or github link via DM to join our GitHub organisation, my Discord name is [.fx4](https://discordapp.com/users/405406280140849162) 
 3. Clone the main repository: `https://github.com/Learn-Svelte-Together/svelte-chat.git`
 
