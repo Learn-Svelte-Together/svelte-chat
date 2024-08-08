@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { superForm } from 'sveltekit-superforms';
 	export let data;
+
+	const { form, enhance } = superForm(data.form);
 </script>
 
 <svelte:head>
@@ -18,12 +21,14 @@
 		{/each}
 	</div>
 
-	<form method="POST">
+	<form method="POST" use:enhance>
 		<div class="mt-5 flex w-full">
 			<input
 				type="text"
+				id="message"
 				name="message"
 				placeholder="Type your message..."
+				bind:value={$form.message}
 				class="mr-3 w-full rounded-md border-2 border-gray-300"
 			/>
 			<button type="submit" class="rounded border border-gray-400 bg-gray-200 px-4 py-2"

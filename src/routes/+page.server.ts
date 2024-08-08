@@ -1,19 +1,29 @@
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
+
 import * as db from '$lib/server/database';
 
-export const load = (async () => {
+const schema = z.object({
+    message: z.string().min(1),
+  });
 
+export const load = (async () => {
+    const form = await superValidate(zod(schema));
     return {
+        form,
         messages: db.getChatMessages()
     };
 })
 
 export const actions = {
 	default: async ({ request }) => {
-		const data = await request.formData();
-        const message = data.get('message') as string
-        if (message) {
+        const form = await superValidate(request, zod(schema));
+        console.log(form)
+
+        if (form.valid) {
             // todo: set correct userId
-            db.saveChatMessage('Me', message)
+            db.saveChatMessage('Me', form.data.message)
         }
 
 	}
