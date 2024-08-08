@@ -1,4 +1,5 @@
 <script lang="ts">
+	export let data;
 	const handleSubmit = (event: Event) => {
 		console.log(event);
 	};
@@ -11,13 +12,13 @@
 <h1 class="text-3xl font-semibold">MeChat</h1>
 
 <div class="max-w-md">
-	<div class="mt-10 h-80 w-full rounded-md border-2 border-gray-300 p-3">
-		<div>
-			<span>Me</span>:<span>Hello!</span>
-		</div>
-		<div>
-			<span>Me:</span><span>Where is everyone?</span>
-		</div>
+	<div class="mt-10 h-80 w-full overflow-auto rounded-md border-2 border-gray-300 p-3">
+		{#each data.messages as message (message.messageId)}
+			<div class="flex">
+				<div class="mr-3">{message.userName}:</div>
+				<div>{message.content}</div>
+			</div>
+		{/each}
 	</div>
 
 	<form onsubmit={handleSubmit}>
