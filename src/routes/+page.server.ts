@@ -19,7 +19,6 @@ export const load = (async () => {
 export const actions = {
 	default: async ({ request }) => {
         const form = await superValidate(request, zod(schema));
-        console.log(form)
 
         if (form.valid) {
             // todo: set correct userId
