@@ -1,8 +1,5 @@
 <script lang="ts">
 	export let data;
-	const handleSubmit = (event: Event) => {
-		console.log(event);
-	};
 </script>
 
 <svelte:head>
@@ -21,10 +18,11 @@
 		{/each}
 	</div>
 
-	<form onsubmit={handleSubmit}>
+	<form method="POST">
 		<div class="mt-5 flex w-full">
 			<input
 				type="text"
+				name="message"
 				placeholder="Type your message..."
 				class="mr-3 w-full rounded-md border-2 border-gray-300"
 			/>
