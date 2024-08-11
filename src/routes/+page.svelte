@@ -56,7 +56,7 @@
 	});
 </script>
 
-<div class="flex h-full flex-col">
+<div class="flex h-full flex-col p-2">
 	<div bind:this={chatContainer} class="flex-1 overflow-y-auto">
 		{#each messages as message, i (i)}
 			<div class="mb-2.5 {message.sender === 'localUser' ? 'text-right' : 'text-left'}">
@@ -72,7 +72,7 @@
 			</div>
 		{/each}
 	</div>
-	<form id="input-container" onsubmit={sendMessage} class="flex gap-2.5">
+	<form id="input-container" onsubmit={sendMessage} class="flex gap-2">
 		<div class="relative flex-grow">
 			<input
 				bind:value={message}

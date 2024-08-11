@@ -48,7 +48,7 @@
 			</button>
 		</div>
 	</div>
-	<div class="flex-1 overflow-hidden p-2 pt-0">
+	<div class="flex-1 overflow-hidden">
 		{@render children()}
 	</div>
 </div>
