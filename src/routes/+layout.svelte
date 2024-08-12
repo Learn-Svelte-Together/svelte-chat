@@ -1,20 +1,25 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { Sun, Moon, ArrowLeft, Pipette } from 'lucide-svelte';
 	import '../app.css';
-	import { ColorHSL, themeManager } from '$lib/theme-manager.svelte';
+	import { lightDarkModeManager } from '$lib/light-dark-mode-manager.svelte';
+	import { colorManager, type ColorHSL } from '$lib/color-manager.svelte';
 
 	let { children }: { children: Snippet } = $props();
 	let colorPickerOpen = $state(false);
-	let color = $state<ColorHSL>(themeManager.color);
+	let color = $state<ColorHSL>(colorManager.color);
 
 	function setColor(newColor: ColorHSL) {
 		color = newColor;
-		themeManager.setColor(newColor);
+		colorManager.set(newColor);
 	}
+
+	onMount(() => {
+		lightDarkModeManager.init();
+	});
 </script>
 
-<div id="app" class="flex h-screen flex-col bg-background" data-theme={themeManager.theme}>
+<div id="app" class="flex h-screen flex-col bg-background" data-theme={lightDarkModeManager.mode}>
 	<div class="flex h-14 justify-between bg-surface px-3">
 		<div class="flex items-center space-x-3">
 			<button>
@@ -39,8 +44,8 @@
 				<Pipette size={22} class="text-text hover:opacity-80 active:ring-2" />
 			</button>
 
-			<button onclick={() => themeManager.toggleTheme()} class="flex items-center">
-				{#if themeManager.theme === 'light'}
+			<button onclick={() => lightDarkModeManager.toggle()} class="flex items-center">
+				{#if lightDarkModeManager.mode === 'light'}
 					<Sun size={22} class="text-text hover:opacity-80 active:ring-2" />
 				{:else}
 					<Moon size={22} class="text-text hover:opacity-80 active:ring-2" />

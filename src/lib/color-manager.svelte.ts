@@ -63,37 +63,31 @@ export class ColorHSL {
 }
 
 type ColorRGB = { r: number; g: number; b: number };
-type Theme = 'system' | 'light' | 'dark';
 
-export class ThemeManager {
-	theme = $state<Theme>('light');
-	color = $state<ColorHSL>(new ColorHSL(0, 86, 52));
-	
+export class ColorManager {
+	public color = $state<ColorHSL>(new ColorHSL(0, 86, 52));
+
 	constructor() {
-		this.initTheme();
-		this.initColor();
-	}
-
-	initTheme() {
 		if (typeof window === 'undefined') return;
 
-		const storedTheme = localStorage.getItem('theme') as Theme | null;
-		this.theme =
-			storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+		const storedColorString = localStorage.getItem('color');
+		const storedColor = storedColorString ? ColorHSL.parse(storedColorString) : null;
+
+		if (storedColor) {
+			this.color = storedColor;
+			this.update();
+		}
 	}
 
-	toggleTheme() {
-		this.theme = this.theme === 'light' ? 'dark' : 'light';
-		localStorage.setItem('theme', this.theme);
-	}
-
-	setColor(color: ColorHSL) {
+	public set(color: ColorHSL) {
 		this.color = color;
-		this.updateColor();
+		this.update();
 		localStorage.setItem('color', color.toString());
 	}
 
-	setOnAccentColor() {
+	private update() {
+		document.documentElement.style.setProperty('--color-accent', this.color.toString());
+
 		const colorRGB: ColorRGB = this.color.toRGB();
 
 		// Calculate relative luminance, based on how human eyes perceive brightness of different colors.
@@ -105,25 +99,6 @@ export class ThemeManager {
 			luminance < 0.5 ? 'black' : 'white'
 		);
 	}
-
-
-	private initColor() {
-		if (typeof window === 'undefined') return;
-
-		const storedColorString = localStorage.getItem('color');
-		const storedColor = storedColorString ? ColorHSL.parse(storedColorString) : null;
-		
-		if (storedColor) {
-			this.color = storedColor;
-			this.updateColor();
-		}
-	}
-
-	private updateColor() {
-		document.documentElement.style.setProperty('--color-accent', this.color.toString());
-
-		this.setOnAccentColor();
-	}
 }
 
-export const themeManager = new ThemeManager();
+export const colorManager = new ColorManager();
