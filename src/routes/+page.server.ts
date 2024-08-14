@@ -1,91 +1,100 @@
-import { fail } from '@sveltejs/kit';
+// src/routes/chat/+page.server.ts
 import type { PageServerLoad, Actions } from './$types';
+import { format } from 'date-fns';
 
-/** 
-* This is a placeholder array which is used in place of a DB, until we have one. It stores the message history.
-* 
-* TODO: Remove when DB and user management implemented.
-*/
-const messageHistory: ChatHistoryItem[] = [];
+// Dummy user database.
+const userDatabase: {
+	user_id: string;
+	username: string;
+}[] = [
+	{
+		user_id: '7f5d6cf2-801d-4a42-bb68-84aa0768fcb6',
+		username: 'Alf'
+	}
+];
+
+// Dummy message database
+const messageDatabase: ChatHistoryItem[] =[
+	{
+		message_id: 'c1da6ed3-5d3c-484c-8779-0def9e12479d',
+		user_id: '7f5d6cf2-801d-4a42-bb68-84aa0768fcb6',
+		message_timestamp: 1723627019, //Unix time format
+		message: 'Any Melmacians in? No? How about any cats?'
+	}
+];
 
 /**
- * Server-side load function for fetching the chat message history.
- * 
- * This function is executed on the server each time the page is requested.
- * It returns the `messageHistory` array, which is a placeholder for
- * chat messages. This placeholder will be replaced with actual database
- * logic once the database and user management are implemented.
- * 
- * TODO: Update when we have a DB.
+ * Queries the dummy message database with the user id.
+ *
+ * @returns a string representing the username.
  */
-export const load: PageServerLoad = () => {
-	return {
-		messageHistory,
-	};
+async function getUsernameByUUID(uuid: string): Promise<string> {
+	const user = userDatabase.find((u) => u.user_id === uuid);
+	return user!.username;
+}
+
+/**
+ * Converts a unix timestamp to a human readable timestamp.
+ *
+ * @returns a string representing a dd/mm/yy hh:mm timestamp.
+ */
+async function formatTimestamp(messageTimestamp: number): Promise<string> {
+	const date = new Date(messageTimestamp * 1000);
+	const formattedDate = format(date, 'dd/MM/yy HH:mm');
+	return formattedDate;
+}
+
+/**
+ * Loads the securely parsed message history.
+ *
+ * - Retrieves all ChatHistoryItem objects from the dummy messageDatabase.
+ * - Utilises map to replace each userid with the username (with getUsernameByUUID) and each timestamp with a formatted one (with formatTimestamp).
+ *
+ * @returns an array of SafeChatHistoryItem objects with message, timestamp and username
+ */
+export const load: PageServerLoad = async () => {
+	const chatHistory: SafeChatHistoryItem[] = await Promise.all(
+		messageDatabase.map(async (item) => {
+			const username = await getUsernameByUUID(item.user_id);
+			const timestamp = await formatTimestamp(item.message_timestamp);
+			return {
+				message: item.message,
+				message_timestamp: timestamp,
+				username: username
+			};
+		})
+	);
+	return { chatHistory };
 };
 
-/**
- * An action for handling new messages from the user.
- * 
- * The `submitMessage` action handles the submission of a new message by a user. It 
- * extracts and validates the necessary form data (username and message), and 
- * processes the message to be added to the message history. If the submission is 
- * successful, a success response is returned along with the updated message history.
- * 
- * In case of an error during submission (e.g., missing form fields or other issues), 
- * it catches the error, logs it, and returns a failure response with the relevant 
- * error message and the original form data for the user's convenience.
- * 
- * Note: The current implementation uses an in-memory message history and lacks 
- * database and user management integration, which should be added in future updates.
- * 
- * TODO: Update when we have a DB.
- */
-export const actions = {
-    
-    // Action to handle new message submission from user.
-    submitMessage: async ({ request }) => {
-        
-        // Extract form data from the request
-        const data = await request.formData();
-        
-        try {
-        
-            // Extract username and message from form data.
-            const username = data.get('username') as string;
-            const message = data.get('message') as string;
+// Actions to handle new messages
+export const actions: Actions = {
+	
+    /**
+	 * Submits the new message to dummy message database.
+	 *
+	 * - Retrieves the data from the submitted form.
+	 * - Creates a 'now' datetime.
+     * - Pushes a ChatHistoryItem to the messageDatabase with a new UUID.
+	 *
+	 * @returns a truthy success boolean.
+	 */
+	newMessage: async ({ request }) => {
+		const data = await request.formData();
+		
+        const uuid = '7f5d6cf2-801d-4a42-bb68-84aa0768fcb6'; // hardcoded for simplicity rn, but will be dealt with through locals/load when we have auth set up.
 
-            // Validate that both username and message are provided.
-            if (!username || !message) {
-                throw new Error('Invalid input. Did not receive username and/or message.');
-            }
+		const message = data.get('message') as string;
+		const now = Math.floor(Date.now() / 1000);
 
-            // Add the new message to the message history.
-            // TODO: Replace when DB and user management implemented.
-            messageHistory.push({ username, message });
+		// Save the message in the database
+		messageDatabase.push({
+			message_id: crypto.randomUUID(),
+			user_id: uuid,
+			message_timestamp: now,
+			message: message
+		});
 
-            // Return success response with updated message history
-            return {
-                success: true,
-                message: 'Message submitted successfully',
-                messageHistory
-            };
-
-        } catch (error) {
-            
-            // Handle errors by setting a default error message
-            let errorMessage = 'An error occurred';
-            
-            // If the error is an instance of Error, use the error's message
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            }
-
-            // Return failure response with error details
-            return fail(422, {
-                data: Object.fromEntries(data), // Preserve form data for user convenience
-                error: errorMessage // Provide the specific error message
-            });
-        }
-    }
-} satisfies Actions;
+		return { success: true };
+	}
+};
