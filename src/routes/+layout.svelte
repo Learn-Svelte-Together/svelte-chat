@@ -4,6 +4,7 @@
 	import '../app.css';
 	import { lightDarkModeManager } from '$lib/light-dark-mode-manager.svelte';
 	import { colorManager, type ColorHSL } from '$lib/color-manager.svelte';
+	import { loginWithPassword } from '$lib/auth/auth';
 
 	let { children }: { children: Snippet } = $props();
 	let colorPickerOpen = $state(false);
