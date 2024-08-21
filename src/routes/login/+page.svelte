@@ -5,10 +5,8 @@
 
 	let username = $state({ value: '' });
 	let password = $state({ value: '' });
-	$inspect(username);
 
 	async function onLogin() {
-		console.log('on login called');
 		await data.authStore.login(username.value, password.value);
 		if (data.authStore.currentUser != null) {
 			goto('/');
@@ -20,12 +18,17 @@
 <!-- Need to make username an object as well -->
 {#snippet formField(name: string, bind: { value: string }, type: string = 'text')}
 	<label for={name}>{name}</label>
-	<input {name} {type} class="" bind:value={bind.value} />
+	<input
+		{name}
+		{type}
+		bind:value={bind.value}
+		class="h-10 w-full rounded-full bg-surface pl-5 pr-12 text-base text-text focus:outline-none"
+	/>
 {/snippet}
 
-<div class="flex flex-col justify-items-center">
+<div class="flex flex-col justify-items-center mx-auto space-y-4 container">
 	{@render formField('username', username)}
 	{@render formField('password', password, 'password')}
 
-	<button type="button" onclick={onLogin}>Login</button>
+	<button type="button" onclick={onLogin} class="rounded-md bg-surface">Login</button>
 </div>
