@@ -39,6 +39,9 @@ export async function loginWithPassword(email: string, password: string): Promis
   }).then(v => v.json())
 
   console.log(result)
+  if (result.code == 400) {
+    throw Error(result.message)
+  }
 
   return {
     username: result.record.username,

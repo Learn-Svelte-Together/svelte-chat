@@ -5,11 +5,21 @@
 
 	let username = $state({ value: '' });
 	let password = $state({ value: '' });
+	let error: string | undefined = $state();
 
 	async function onLogin() {
-		await data.authStore.login(username.value, password.value);
-		if (data.authStore.currentUser != null) {
-			goto('/');
+		try {
+			await data.authStore.login(username.value, password.value);
+			if (data.authStore.currentUser != null) {
+				goto('/');
+			}
+		} catch (e) {
+			console.error(e);
+			if (typeof e == 'string') {
+				error = e.toString();
+			} else if (e instanceof Error) {
+				error = e.message;
+			}
 		}
 	}
 </script>
@@ -31,4 +41,9 @@
 	{@render formField('password', password, 'password')}
 
 	<button type="button" onclick={onLogin} class="rounded-md bg-surface">Login</button>
+	{#if error}
+		<div class="text-red">
+			{error}
+		</div>
+	{/if}
 </div>

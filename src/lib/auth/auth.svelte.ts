@@ -9,7 +9,6 @@ $inspect(loggedInUser)
 export const authStore = {
   async login(email: string, password: string) {
     const user = await loginWithPassword(email, password)
-    console.log(user)
     loggedInUser = user;
   },
   isLoggedIn() {
