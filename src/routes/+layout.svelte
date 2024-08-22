@@ -4,8 +4,15 @@
 	import '../app.css';
 	import { lightDarkModeManager } from '$lib/light-dark-mode-manager.svelte';
 	import { colorManager, type ColorHSL } from '$lib/color-manager.svelte';
+	import type { LayoutServerData } from './$types';
 
-	let { children }: { children: Snippet } = $props();
+	let {
+		data,
+		children
+	}: {
+		data: LayoutServerData;
+		children: Snippet;
+	} = $props();
 	let colorPickerOpen = $state(false);
 	let color = $state<ColorHSL>(colorManager.color);
 
@@ -16,48 +23,60 @@
 
 	onMount(() => {
 		lightDarkModeManager.init();
+		
 	});
+
+	
 </script>
 
-<div id="app" class="flex h-screen flex-col bg-background" data-theme={lightDarkModeManager.mode}>
-	<div class="flex h-14 justify-between bg-surface px-3">
-		<div class="flex items-center space-x-3">
-			<button>
-				<ArrowLeft size={22} class="text-text hover:opacity-80" />
-			</button>
-			<p class="text-lg text-text">Demo Chat</p>
-		</div>
+{#if data.user}
+	<div id="app" class="flex h-screen flex-col bg-background" data-theme={lightDarkModeManager.mode}>
+		<div class="flex h-14 justify-between bg-surface px-3">
+			<div class="flex items-center space-x-3">
+				<button>
+					<ArrowLeft size={22} class="text-text hover:opacity-80" />
+				</button>
+				<p class="text-lg text-text">Demo Chat</p>
+			</div>
 
-		<div class="flex items-center space-x-3">
-			{#if colorPickerOpen}
-				<input
-					type="range"
-					min="0"
-					max="360"
-					bind:value={color.h}
-					oninput={() => setColor(color)}
-					class="w-48"
-				/>
-			{/if}
-
-			<button onclick={() => (colorPickerOpen = !colorPickerOpen)}>
-				<Pipette size={22} class="text-text hover:opacity-80 active:ring-2" />
-			</button>
-
-			<button onclick={() => lightDarkModeManager.toggle()} class="flex items-center">
-				{#if lightDarkModeManager.mode === 'light'}
-					<Sun size={22} class="text-text hover:opacity-80 active:ring-2" />
-				{:else}
-					<Moon size={22} class="text-text hover:opacity-80 active:ring-2" />
+			<div class="flex items-center space-x-3">
+				{#if colorPickerOpen}
+					<input
+						type="range"
+						min="0"
+						max="360"
+						bind:value={color.h}
+						oninput={() => setColor(color)}
+						class="w-48"
+					/>
 				{/if}
-			</button>
+
+				<button onclick={() => (colorPickerOpen = !colorPickerOpen)}>
+					<Pipette size={22} class="text-text hover:opacity-80 active:ring-2" />
+				</button>
+
+				<button onclick={() => lightDarkModeManager.toggle()} class="flex items-center">
+					{#if lightDarkModeManager.mode === 'light'}
+						<Sun size={22} class="text-text hover:opacity-80 active:ring-2" />
+					{:else}
+						<Moon size={22} class="text-text hover:opacity-80 active:ring-2" />
+					{/if}
+				</button>
+				<form action="/logout" method="POST">
+					<button type="submit" class="rounded-md bg-blue-500 text-white px-4 py-2 mx-auto">Logout</button>
+				</form>
+			</div>
+		</div>
+		<div class="flex-1 overflow-hidden">
+			{@render children()}
 		</div>
 	</div>
-	<div class="flex-1 overflow-hidden">
-		{@render children()}
-	</div>
-</div>
+{:else}
 
+	<main class="flex flex-row max-h-screen min-h-screen">
+		{@render children()}
+	</main>
+{/if}
 <style>
 	input[type='range'] {
 		-webkit-appearance: none;
